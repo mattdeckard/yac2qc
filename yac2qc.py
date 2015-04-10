@@ -35,8 +35,8 @@ from collections import OrderedDict as _OrderedDict
 from rules import rules
 
 # the expected csv file format is defined here
-# NOTE: this is not yet as generic as I would like it to be, so 
-#       when changing this, other parts of the code may have to be 
+# NOTE: this is not yet as generic as I would like it to be, so
+#       when changing this, other parts of the code may have to be
 #       changed as well for now...
 HEADER = ["Date", "Description", "To Account", "From Account",
           "Code" , "Deposit/Withdrawal" , "Amount", "Transaction Type", "Memo" ]
