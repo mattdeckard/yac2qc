@@ -38,21 +38,23 @@ from rules import rules
 # NOTE: this is not yet as generic as I would like it to be, so
 #       when changing this, other parts of the code may have to be
 #       changed as well for now...
-HEADER = ["Date", "Description", "To Account", "From Account",
-          "Code" , "Deposit/Withdrawal" , "Amount", "Transaction Type", "Memo" ]
+HEADER = ["Date", "Description", "Original Description", "Amount", "Transaction Type",
+          "Category", "Account Name", "Labels", "Notes"]
 DELIMITER = ','
 QUOTECHAR = '"'
 LINETERMINATOR = '\r\n'
-DATEFORMAT = '%Y%m%d'
+DATEFORMAT = '%m/%d/%Y'
 CENTSEPARATOR = ','
+WITHDRAWSTRING = 'debit'
 
 # category for records that match none of the rules
 UNKNOWN = 'unspecified'
 
 # internal representation of parsed records
-_record = _namedtuple('record', 'date namedesc account otheraccount code '
-                                'deposit_withdraw amount mutation_type '
-                                'description')
+_record = _namedtuple('record',
+                      'date namedesc description amount deposit_withdraw '
+                      'code account labels notes'
+)
 
 # internal representation of a qif record
 _qifrecord = _namedtuple('qifrecord', 'date, amount, category, memo')
@@ -122,7 +124,7 @@ def rec2qif(rec):
 
     # convert the amount to float with proper sign
     sign = ''
-    if rec.deposit_withdraw == 'Af':
+    if rec.deposit_withdraw == WITHDRAWSTRING:
         sign = '-'
     amount = float(sign + rec.amount.replace(CENTSEPARATOR,'.'))
     amount = '{:.2f}'.format(amount)
@@ -130,11 +132,9 @@ def rec2qif(rec):
     # determine the category of the record
     cat = category(rec)
 
-    # accumulate namedesc, decription, otheraccount into memo string
+    # accumulate namedesc, decription, into memo string
     memo = 'name: {:s} - description: {:s}'
     memo = memo.format(rec.namedesc, rec.description)
-    if rec.otheraccount != '':
-        memo = memo + ' - account: {:s}'.format(rec.otheraccount)
 
     return _qifrecord(rec.date, amount, cat, memo)
 
