@@ -58,7 +58,7 @@ _record = _namedtuple('record',
 )
 
 # internal representation of a qif record
-_qifrecord = _namedtuple('qifrecord', 'date, payee, amount, category, memo')
+_qifrecord = _namedtuple('qifrecord', 'date, payee, amount, category, memo, account')
 
 
 def write_qif(qrecs, f):
@@ -137,7 +137,7 @@ def rec2qif(rec):
     amount = '{:.2f}'.format(amount)
     cat = category(rec)
 
-    return _qifrecord(rec.date, rec.namedesc, amount, cat, rec.description)
+    return _qifrecord(rec.date, rec.namedesc, amount, cat, rec.description, rec.account)
 
 
 def formatqif(qifrecord):
@@ -204,6 +204,8 @@ def _cli():
         help = 'destination file')
     parser.add_argument('-u', action='store_true',
         help = 'print records for which category is unknown.')
+    parser.add_argument('-a', action='store_true',
+        help = 'output to <ACCOUNT>.qif for each account.')
     args = parser.parse_args()
     return args
 
@@ -225,9 +227,15 @@ def _main():
     if args.u:
         return print_unknowns(args.infile)
 
-    qif_records = convert(args.infile)
+    qif_records = list(convert(args.infile))
 
-    if args.o is not None:
+    if args.a:
+        accounts = {q.account for q in qif_records}
+        for account in accounts:
+            outfilename = account.replace(' ', '-') + '.qif'
+            with open(outfilename, 'wt') as f:
+                write_qif([q for q in qif_records if q.account == account], f)
+    elif args.o is not None:
         with open(args.o, 'wt') as f:
             write_qif(qif_records, f)
     else:
