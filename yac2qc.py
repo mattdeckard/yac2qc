@@ -87,7 +87,7 @@ def check_inputfile(fname):
         header = next(reader)
         if header != HEADER:
             errmsg = 'file should start with expected header {:s}'
-            errmsg.format(HEADER)
+            errmsg.format(repr(HEADER))
 
     if errmsg is not None:
         raise ValueError(errmsg)
