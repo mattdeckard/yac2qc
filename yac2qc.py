@@ -33,6 +33,7 @@ import os as _os
 from collections import namedtuple as _namedtuple
 from collections import OrderedDict as _OrderedDict
 from rules import rules
+from types import MethodType
 
 # the expected csv file format is defined here
 # NOTE: this is not yet as generic as I would like it to be, so
@@ -58,6 +59,12 @@ _record = _namedtuple('record',
 
 # internal representation of a qif record
 _qifrecord = _namedtuple('qifrecord', 'date, payee, amount, category, memo')
+
+
+def write_qif(qrecs, f):
+    f.write('!Type:Bank\n')
+    for q in qrecs:
+        f.write(formatqif(q))
 
 
 def check_inputfile(fname):
@@ -150,22 +157,11 @@ def unknowns(records):
         yield u
 
 
-def convert(infile, outfile=None):
+def convert(infile):
     ''' converts csv to qif. '''
 
     recs = records(infile)
-    qrecs = (rec2qif(r) for r in recs)
-
-    def write(f):
-        f.write('!Type:Bank\n')
-        for q in qrecs:
-            f.write(formatqif(q))
-
-    if outfile is None:
-        write(_sys.stdout)
-    else:
-        with open(outfile, 'wt') as f:
-            write(f)
+    return (rec2qif(r) for r in recs)
 
 
 def category(record):
@@ -226,15 +222,16 @@ def print_unknowns(fname):
 def _main():
     args = _cli()
 
-    if args.u is True:
-        print_unknowns(args.infile)
-    elif args.o is not None:
-        if _os.path.exists(args.o):
-            errmsg = 'output file {:s} already exists, aborted!'
-            _sys.exit(errmsg.format(args.o))
-        convert(args.infile, args.o)
+    if args.u:
+        return print_unknowns(args.infile)
+
+    qif_records = convert(args.infile)
+
+    if args.o is not None:
+        with open(args.o, 'wt') as f:
+            write_qif(qif_records, f)
     else:
-        convert(args.infile)
+        write_qif(qif_records, _sys.stdout)
 
 
 if __name__ == "__main__":
