@@ -38,8 +38,8 @@ from rules import rules
 # NOTE: this is not yet as generic as I would like it to be, so 
 #       when changing this, other parts of the code may have to be 
 #       changed as well for now...
-HEADER = ["Datum", "Naam / Omschrijving", "Rekening", "Tegenrekening",
-          "Code", "Af Bij", "Bedrag (EUR)", "MutatieSoort", "Mededelingen"]
+HEADER = ["Date", "Description", "To Account", "From Account",
+          "Code" , "Deposit/Withdrawal" , "Amount", "Transaction Type", "Memo" ]
 DELIMITER = ','
 QUOTECHAR = '"'
 LINETERMINATOR = '\r\n'
