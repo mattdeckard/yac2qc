@@ -57,7 +57,7 @@ _record = _namedtuple('record',
 )
 
 # internal representation of a qif record
-_qifrecord = _namedtuple('qifrecord', 'date, amount, category, memo')
+_qifrecord = _namedtuple('qifrecord', 'date, payee, amount, category, memo')
 
 
 def check_inputfile(fname):
@@ -128,23 +128,17 @@ def rec2qif(rec):
         sign = '-'
     amount = float(sign + rec.amount.replace(CENTSEPARATOR,'.'))
     amount = '{:.2f}'.format(amount)
-
-    # determine the category of the record
     cat = category(rec)
 
-    # accumulate namedesc, decription, into memo string
-    memo = 'name: {:s} - description: {:s}'
-    memo = memo.format(rec.namedesc, rec.description)
-
-    return _qifrecord(rec.date, amount, cat, memo)
+    return _qifrecord(rec.date, rec.namedesc, amount, cat, rec.description)
 
 
 def formatqif(qifrecord):
     ''' formats a qif record. '''
 
-    qif = 'D{:s}\nT{:s}\nL{:s}\nM{:s}\n^\n'
-    qif = qif.format(qifrecord.date, qifrecord.amount, qifrecord.category,
-                     qifrecord.memo)
+    qif = 'D{:s}\nT{:s}\nP{:s}\nL{:s}\nM{:s}\n^\n'
+    qif = qif.format(qifrecord.date, qifrecord.amount, qifrecord.payee,
+                     qifrecord.category, qifrecord.memo)
     return qif
 
 
